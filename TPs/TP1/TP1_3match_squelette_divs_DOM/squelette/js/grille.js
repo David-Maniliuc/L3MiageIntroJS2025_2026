@@ -1,4 +1,4 @@
-import Cookie from "./Cookie.js";
+import Cookie from "./cookie.js";
 import { create2DArray } from "./utils.js";
 
 /* Classe principale du jeu, c'est une grille de cookies. Le jeu se joue comme
@@ -14,7 +14,7 @@ export default class Grille {
     this.c = c;
     this.l = l;
 
-    this.tabcookies = this.remplirTableauDeCookies(6)
+    this.tabcookies = this.remplirTableauDeCookies(6);
   }
 
   /**
@@ -32,14 +32,16 @@ export default class Grille {
       // on sait que chaque ligne contient this.c colonnes
       // er this.l lignes
       // on peut en déduire la ligne et la colonne
-      // par exemple si on a 9 cases par ligne et qu'on 
+      // par exemple si on a 9 cases par ligne et qu'on
       // est à l'index 4
-      // on est sur la ligne 0 (car 4/9 = 0) et 
+      // on est sur la ligne 0 (car 4/9 = 0) et
       // la colonne 4 (car 4%9 = 4)
       let ligne = Math.floor(index / this.l);
       let colonne = index % this.c;
 
-      console.log("On remplit le div index=" + index + " l=" + ligne + " col=" + colonne);
+      console.log(
+        "On remplit le div index=" + index + " l=" + ligne + " col=" + colonne,
+      );
 
       // on récupère le cookie correspondant à cette case
       let cookie = this.tabcookies[ligne][colonne];
@@ -47,13 +49,15 @@ export default class Grille {
       let img = cookie.htmlImage;
 
       img.onclick = (event) => {
-        console.log("On a cliqué sur la ligne " + ligne + " et la colonne " + colonne);
+        console.log(
+          "On a cliqué sur la ligne " + ligne + " et la colonne " + colonne,
+        );
         //let cookieCliquee = this.getCookieFromLC(ligne, colonne);
         console.log("Le cookie cliqué est de type " + cookie.type);
 
         // test : si on a cliqué sur un cookie déjà sélectionné
         // on le désélectionne et on ne fait rien.
-        if(cookie.isSelectionnee()) {
+        if (cookie.isSelectionnee()) {
           cookie.deselectionnee();
           // on la retire du tableau des cookies sélectionnés
           this.cookieSelectionnes = [];
@@ -67,10 +71,10 @@ export default class Grille {
         // si 0 on ajoute le cookie cliqué au tableau
         // si 1 on ajoute le cookie cliqué au tableau
         // et on essaie de swapper
-      }
+      };
 
       // A FAIRE : ecouteur de drag'n'drop
-      
+
       // on affiche l'image dans le div pour la faire apparaitre à l'écran.
       div.appendChild(img);
     });
@@ -106,7 +110,6 @@ export default class Grille {
     // remplir
     for (let l = 0; l < this.l; l++) {
       for (let c = 0; c < this.c; c++) {
-
         // on génère un nombre aléatoire entre 0 et nbDeCookiesDifferents-1
         const type = Math.floor(Math.random() * nbDeCookiesDifferents);
         //console.log(type)

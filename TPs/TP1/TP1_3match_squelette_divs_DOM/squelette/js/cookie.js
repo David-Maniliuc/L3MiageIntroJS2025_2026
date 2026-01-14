@@ -1,8 +1,8 @@
 export default class Cookie {
-  ligne=0;
-  colone=0;
-  type=0;
-  htmlImage=undefined;
+  ligne = 0;
+  colone = 0;
+  type = 0;
+  htmlImage = undefined;
 
   static urlsImagesNormales = [
     "./assets/images/Croissant@2x.png",
@@ -59,19 +59,17 @@ export default class Cookie {
     // surlignée correspondant au type de cookie. Voir la propriété
     // statique de la classe Cookie, urlsImagesSurlignees
     // A FAIRE
-   
+    console.log(this.htmlImage.src);
+
     // A FAIRE On va ajouter la classe CSS "cookies-selected" à
     // l'image du cookie
-    
   }
 
   deselectionnee() {
     // on change l'image et la classe CSS
     // A FAIRE
-  
     // A FAIREOn va ajouter la classe CSS "cookies-selected" à
     // l'image du cookie
-    
   }
 
   static swapCookies(c1, c2) {
@@ -80,10 +78,9 @@ export default class Cookie {
 
     // On regarde la distance entre les deux cookies
     // si elle est de 1, on peut les swapper
-   
   }
 
-  /** renvoie la distance au sens "nombre de cases" 
+  /** renvoie la distance au sens "nombre de cases"
    * entre deux cookies. Servira pour savoir si on peut
    * swapper deux cookies */
   static distance(cookie1, cookie2) {
