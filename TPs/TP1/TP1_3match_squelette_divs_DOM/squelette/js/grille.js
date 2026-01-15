@@ -1,5 +1,6 @@
 import Cookie from "./cookie.js";
 import { create2DArray } from "./utils.js";
+const NB_COOCKIES = 6;
 
 /* Classe principale du jeu, c'est une grille de cookies. Le jeu se joue comme
 Candy Crush Saga etc... c'est un match-3 game... */
@@ -14,7 +15,7 @@ export default class Grille {
     this.c = c;
     this.l = l;
 
-    this.tabcookies = this.remplirTableauDeCookies(6);
+    this.tabcookies = this.remplirTableauDeCookies(NB_COOCKIES);
   }
 
   /**
@@ -27,75 +28,13 @@ export default class Grille {
     let caseDivs = document.querySelectorAll("#grille div");
 
     caseDivs.forEach((div, index) => {
-      // on calcule la ligne et la colonne de la case
-      // index est le numéro de la case dans la grille
-      // on sait que chaque ligne contient this.c colonnes
-      // er this.l lignes
-      // on peut en déduire la ligne et la colonne
-      // par exemple si on a 9 cases par ligne et qu'on
-      // est à l'index 4
-      // on est sur la ligne 0 (car 4/9 = 0) et
-      // la colonne 4 (car 4%9 = 4)
-      let ligne = Math.floor(index / this.l);
+      let ligne = Math.floor(index / this.c);
       let colonne = index % this.c;
 
-      console.log(`On remplit le div index=${index} l=${ligne} col=${colonne}`);
-
-      // on récupère le cookie correspondant à cette case
       let cookie = this.tabcookies[ligne][colonne];
-      // on récupère l'image correspondante
       let img = cookie.htmlImage;
 
-      img.onclick = (event) => {
-        console.log(
-          `On a cliqué sur la ligne ${ligne} et la colonne ${colonne}`,
-        );
-        //let cookieCliquee = this.getCookieFromLC(ligne, colonne);
-        console.log(`Le cookie cliqué est de type ${cookie.type}`);
-
-        // test : si on a cliqué sur un cookie déjà sélectionné
-        // on le désélectionne et on ne fait rien.
-        if (cookie.isSelectionnee()) {
-          cookie.deselectionnee();
-          // on la retire du tableau des cookies sélectionnés
-          this.cookieSelectionnes = [];
-          return;
-        }
-
-        // highlight + changer classe CSS
-        cookie.selectionnee();
-
-        // A FAIRE : tester combien de cookies sont sélectionnées
-        // si 0 on ajoute le cookie cliqué au tableau
-        // si 1 on ajoute le cookie cliqué au tableau
-        // et on essaie de swapper
-        this.cookieSelectionnes.push(cookie);
-
-        if (this.cookieSelectionnes.length === 2) {
-          let [C1, C2] = this.cookieSelectionnes;
-
-          let success = Cookie.swapCookies(C1, C2);
-
-          if (success) {
-            this.tabcookies[C1.ligne][C1.colonne] = C1;
-            this.tabcookies[C2.ligne][C2.colonne] = C2;
-
-            console.log("Modèle de données mis à jour.");
-
-            this.netoieGrille();
-          }
-
-          C1.deselectionnee();
-          C2.deselectionnee();
-          this.cookieSelectionnes = [];
-        }
-      };
-
-      // A FAIRE : ecouteur de drag'n'drop
-      // img.ondragstart = (event) => {};
-      // img.ondragend = (event) => {};
-
-      // on affiche l'image dans le div pour la faire apparaitre à l'écran.
+      this.ajouteEcouteurAuCookie(cookie);
       div.appendChild(img);
     });
   }
@@ -191,13 +130,36 @@ export default class Grille {
     console.log(cookiesATuer);
 
     if (cookiesATuer.length > 0) {
-      console.log(`Found ${cookiesATuer.length} cookies to remove.`);
+      console.log(`On a trouvé ${cookiesATuer.length} cookies a tuer.`);
       cookiesATuer.forEach((c) => {
         c.htmlImage.remove();
         this.tabcookies[c.ligne][c.colonne] = null; // Marquer la case comme vide
       });
+      this.gèreChutes();
+      this.repeupleTableauDeCookies(NB_COOCKIES);
+      this.netoieGrille();
     }
-    this.gèreChutes();
+  }
+
+  repeupleTableauDeCookies(nbDeCookiesDifferents) {
+    let caseDivs = document.querySelectorAll("#grille div");
+
+    for (let l = 0; l < this.l; l++) {
+      for (let c = 0; c < this.c; c++) {
+        if (this.tabcookies[l][c] === null) {
+          const type = Math.floor(Math.random() * nbDeCookiesDifferents);
+          const newCookie = new Cookie(type, l, c);
+          this.tabcookies[l][c] = newCookie;
+
+          const index = l * this.c + c;
+          const targetDiv = caseDivs[index];
+
+          targetDiv.appendChild(newCookie.htmlImage);
+
+          this.ajouteEcouteurAuCookie(newCookie);
+        }
+      }
+    }
   }
 
   /**
@@ -227,11 +189,39 @@ export default class Grille {
       for (let c = 0; c < this.c; c++) {
         // on génère un nombre aléatoire entre 0 et nbDeCookiesDifferents-1
         const type = Math.floor(Math.random() * nbDeCookiesDifferents);
-        //console.log(type)
+        // console.log(type);
         tab[l][c] = new Cookie(type, l, c);
       }
     }
 
     return tab;
+  }
+
+  ajouteEcouteurAuCookie(cookie) {
+    cookie.htmlImage.onclick = (event) => {
+      if (cookie.isSelectionnee()) {
+        cookie.deselectionnee();
+        this.cookieSelectionnes = [];
+        return;
+      }
+
+      cookie.selectionnee();
+      this.cookieSelectionnes.push(cookie);
+
+      if (this.cookieSelectionnes.length === 2) {
+        let [C1, C2] = this.cookieSelectionnes;
+        let success = Cookie.swapCookies(C1, C2);
+
+        if (success) {
+          this.tabcookies[C1.ligne][C1.colonne] = C1;
+          this.tabcookies[C2.ligne][C2.colonne] = C2;
+          this.netoieGrille();
+        }
+
+        C1.deselectionnee();
+        C2.deselectionnee();
+        this.cookieSelectionnes = [];
+      }
+    };
   }
 }
