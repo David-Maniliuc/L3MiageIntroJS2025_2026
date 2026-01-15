@@ -1,6 +1,6 @@
 export default class Cookie {
   ligne = 0;
-  colone = 0;
+  colonne = 0;
   type = 0;
   htmlImage = undefined;
 
@@ -49,35 +49,53 @@ export default class Cookie {
 
   isSelectionnee() {
     // on regarde si l'image a la classe CSS "cookies-selected"
-    // A FAIRE
-    //return this.htmlImage.classList.contains("cookies-selected");
+    return this.htmlImage.classList.contains("cookies-selected");
   }
 
   selectionnee() {
-    // on change l'image et la classe CSS
-    // On doit mettre à la place de l'URL classique, l'URL de l'image
-    // surlignée correspondant au type de cookie. Voir la propriété
-    // statique de la classe Cookie, urlsImagesSurlignees
-    // A FAIRE
-    console.log(this.htmlImage.src);
+    // On change la source de l'image par la version surlignée
+    this.htmlImage.src = Cookie.urlsImagesSurlignees[this.type];
 
-    // A FAIRE On va ajouter la classe CSS "cookies-selected" à
-    // l'image du cookie
+    // On ajoute la classe CSS
+    this.htmlImage.classList.add("cookies-selected");
   }
 
   deselectionnee() {
-    // on change l'image et la classe CSS
-    // A FAIRE
-    // A FAIREOn va ajouter la classe CSS "cookies-selected" à
-    // l'image du cookie
+    // On remet l'image normale
+    this.htmlImage.src = Cookie.urlsImagesNormales[this.type];
+
+    // On retire la classe CSS
+    this.htmlImage.classList.remove("cookies-selected");
   }
 
   static swapCookies(c1, c2) {
-    // A FAIRE
     console.log("On essaie SWAP C1 C2");
 
     // On regarde la distance entre les deux cookies
     // si elle est de 1, on peut les swapper
+    if (this.distance(c1, c2) !== 1) {
+      console.log("On de peut pas SWAP C1 et C2");
+      return false;
+    }
+    let tempL = c1.ligne;
+    let tempC = c1.colonne;
+
+    c1.ligne = c2.ligne;
+    c1.colonne = c2.colonne;
+    c2.ligne = tempL;
+    c2.colonne = tempC;
+
+    c1.htmlImage.dataset.ligne = c1.ligne;
+    c1.htmlImage.dataset.colonne = c1.colonne;
+    c2.htmlImage.dataset.ligne = c2.ligne;
+    c2.htmlImage.dataset.colonne = c2.colonne;
+
+    const div1 = c1.htmlImage.parentNode;
+    const div2 = c2.htmlImage.parentNode;
+
+    div1.appendChild(c2.htmlImage);
+    div2.appendChild(c1.htmlImage);
+    return true;
   }
 
   /** renvoie la distance au sens "nombre de cases"
@@ -89,8 +107,8 @@ export default class Cookie {
     let l2 = cookie2.ligne;
     let c2 = cookie2.colonne;
 
-    const distance = Math.sqrt((c2 - c1) * (c2 - c1) + (l2 - l1) * (l2 - l1));
-    console.log("Distance = " + distance);
+    const distance = Math.abs(l1 - l2) + Math.abs(c1 - c2);
+    console.log(`Distance = ${distance}`);
     return distance;
   }
 }
