@@ -198,7 +198,11 @@ export default class Grille {
   }
 
   ajouteEcouteurAuCookie(cookie) {
-    cookie.htmlImage.onclick = (event) => {
+    let img = cookie.htmlImage;
+
+    img.draggable = true;
+
+    img.onclick = (event) => {
       if (cookie.isSelectionnee()) {
         cookie.deselectionnee();
         this.cookieSelectionnes = [];
@@ -210,18 +214,50 @@ export default class Grille {
 
       if (this.cookieSelectionnes.length === 2) {
         let [C1, C2] = this.cookieSelectionnes;
-        let success = Cookie.swapCookies(C1, C2);
-
-        if (success) {
-          this.tabcookies[C1.ligne][C1.colonne] = C1;
-          this.tabcookies[C2.ligne][C2.colonne] = C2;
-          this.netoieGrille();
-        }
-
-        C1.deselectionnee();
-        C2.deselectionnee();
-        this.cookieSelectionnes = [];
+        this.tenteSwap(C1, C2);
       }
     };
+
+    img.ondragstart = (e) => {
+      this.cookieDraggé = cookie;
+
+      img.classList.add("cookie-draggee");
+    };
+
+    img.ondragover = (e) => {
+      e.preventDefault();
+    };
+
+    img.ondragenter = (e) => {
+      e.target.classList.add("drag-over");
+    };
+
+    img.ondragleave = (e) => {
+      e.target.classList.remove("drag-over");
+    };
+
+    img.ondrop = (e) => {
+      e.preventDefault();
+      e.target.classList.remove("drag-over");
+
+      let cookieCible = cookie;
+      let cookieSource = this.cookieDraggé;
+
+      if (cookieSource && cookieSource !== cookieCible) {
+        this.tenteSwap(cookieSource, cookieCible);
+      }
+    };
+  }
+
+  tenteSwap(C1, C2) {
+    let success = Cookie.swapCookies(C1, C2);
+    if (success) {
+      this.tabcookies[C1.ligne][C1.colonne] = C1;
+      this.tabcookies[C2.ligne][C2.colonne] = C2;
+      this.netoieGrille();
+    }
+    C1.deselectionnee();
+    C2.deselectionnee();
+    this.cookieSelectionnes = [];
   }
 }
